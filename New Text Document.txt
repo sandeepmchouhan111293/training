@@ -1,0 +1,60 @@
+
+
+From: Gupta, Saarthak 
+Sent: Monday, May 22, 2017 3:55 PM
+To: Mittal, Nishtha
+Subject: 
+
+@Override
+public Salary calculateEmployeeNetSalary(int employeeId)
+throws EmployeeDetailsNotFoundException,
+PayrollServicesDownException, SQLException {
+
+Employee  employee=pDao.getEmployee(employeeId);
+Salary sal= employee.getSalary();
+sal.setHra((float)(sal.getBasicSalary()*0.4));
+sal.setTa((float)(sal.getBasicSalary()*0.2));
+sal.setDa((float)(sal.getBasicSalary()*0.24));
+sal.setGrossSalary(sal.getBasicSalary()+sal.getHra()+sal.getTa()+sal.getDa()+sal.getCompanyPf()+sal.getEmployeePf());
+float annSal=sal.getGrossSalary()*12;
+float annTax=0;
+float invest=employee.getYearlyInvestmentUnder80C();
+if(annSal<=250000){
+annTax=0;
+} else if((annSal>250000)&&(annSal<=500000)){
+
+if(invest<=150000){
+annTax=(float) ((annSal-250000-invest)*0.05);}
+else{
+annTax=(float) ((annSal-250000-150000)*0.05);
+}
+
+}else if ((annSal>500000)&&(annSal<=1000000)){
+
+if(invest<=150000){
+annTax=(float) ((250000-invest)*0.05+(annSal-500000)*0.10);
+} else{
+annTax=(float) ((250000-150000)*0.05+(annSal-500000)*0.10);
+}}
+else if((annSal>1000000)&&(annSal<=10000000)){
+
+if(invest<=150000){
+annTax=(float) ((250000-invest)*0.05+500000*0.10+(annSal-1000000)*0.30);
+} else{
+annTax=(float) ((250000-150000)*0.05+500000*0.10+(annSal-1000000)*0.30);
+}}
+else {
+
+if(invest<=150000){
+annTax=(float) ((250000-invest)*0.05+500000*0.10+(annSal-1000000)*0.30+annSal*0.02);}
+else{
+annTax=(float) ((250000-150000)*0.05+500000*0.10+(annSal-1000000)*0.30+annSal*0.02);
+}
+}
+sal.setMonthlyTax(annTax/12);
+sal.setNetSalary(sal.getGrossSalary()-sal.getMonthlyTax());
+employee.setSalary(sal);
+pDao.updateEmployee(employee);
+return sal;
+
+}
